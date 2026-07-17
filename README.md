@@ -1,15 +1,12 @@
-# 6-week-backend-node-training
-This is an 6 week backend trainging with node, express, and SQL
-
 # Backend Foundation
 
-A simple REST API built using **Node.js 24**, **Express 5**, and **ES Modules** to understand the fundamentals of backend development.
+A RESTful API built using **Node.js 24.18.0**, **Express 5**, and **ES Modules** to understand the fundamentals of backend development and clean application architecture.
 
 ---
 
 ## Tech Stack
 
-- Node.js 24.18.0
+- Node.js 24.18.0 (LTS)
 - Express 5
 - ES Modules (ECMAScript Modules)
 
@@ -17,16 +14,18 @@ A simple REST API built using **Node.js 24**, **Express 5**, and **ES Modules** 
 
 ## Features
 
-- Express Server Setup
-- REST APIs
+- RESTful APIs
+- API Versioning (`/api/v1`)
+- Express Router
 - Route Parameters
 - Middleware
-- Logger Middleware
 - Request Validation
+- Request Logging
 - Global Error Handling
 - Custom API Error Class
-- Standardized API Response
+- Standardized API Responses
 - In-Memory Data Store
+- Layered Architecture (Routes → Controllers → Services)
 
 ---
 
@@ -65,6 +64,7 @@ backend-foundation/
 │         response.js
 │
 ├── package.json
+├── .gitignore
 └── README.md
 ```
 
@@ -72,25 +72,25 @@ backend-foundation/
 
 ## Installation
 
-Clone the repository
+### Clone the repository
 
 ```bash
 git clone <repository-url>
 ```
 
-Install dependencies
+### Install dependencies
 
 ```bash
 npm install
 ```
 
-Run the application
+### Run the application
 
 ```bash
 npm run dev
 ```
 
-The server starts on
+The server will start on
 
 ```text
 http://localhost:3000
@@ -98,17 +98,27 @@ http://localhost:3000
 
 ---
 
-## Available APIs
+# Base URL
 
-### Get All Users
+All APIs are versioned.
+
+```text
+http://localhost:3000/api/v1
+```
+
+---
+
+# Available APIs
+
+## 1. Get All Users
 
 **GET**
 
 ```http
-/users
+/api/v1/users
 ```
 
-#### Success Response
+### Success Response
 
 ```json
 {
@@ -126,21 +136,21 @@ http://localhost:3000
 
 ---
 
-### Get User By Id
+## 2. Get User By Id
 
 **GET**
 
 ```http
-/users/:id
+/api/v1/users/:id
 ```
 
 Example
 
 ```http
-/users/1
+/api/v1/users/1
 ```
 
-#### Success Response
+### Success Response
 
 ```json
 {
@@ -154,7 +164,7 @@ Example
 }
 ```
 
-#### Error Response
+### Error Response
 
 ```json
 {
@@ -165,15 +175,15 @@ Example
 
 ---
 
-### Create User
+## 3. Create User
 
 **POST**
 
 ```http
-/users
+/api/v1/users
 ```
 
-Request Body
+### Request Body
 
 ```json
 {
@@ -182,7 +192,7 @@ Request Body
 }
 ```
 
-#### Success Response
+### Success Response
 
 ```json
 {
@@ -196,7 +206,7 @@ Request Body
 }
 ```
 
-#### Validation Error
+### Validation Error
 
 ```json
 {
@@ -219,7 +229,10 @@ Express Server
 Logger Middleware
    │
    ▼
-Route
+API Router (/api/v1)
+   │
+   ▼
+User Router (/users)
    │
    ▼
 Validation Middleware
@@ -240,7 +253,7 @@ Response Utility
 Client
 ```
 
-If any error occurs
+If an error occurs
 
 ```text
 Controller / Service
@@ -259,8 +272,8 @@ JSON Response
 
 ## HTTP Status Codes
 
-| Status Code | Description |
-|-------------|-------------|
+| Status | Description |
+|---------|-------------|
 | 200 | OK |
 | 201 | Created |
 | 400 | Bad Request |
@@ -271,12 +284,36 @@ JSON Response
 
 ## Current Limitations
 
-- Uses an in-memory array as the data source.
-- Data is lost whenever the application restarts.
-- No database integration yet.
+- Uses an in-memory data store.
+- Data is lost whenever the server restarts.
+- No persistent database integration.
+- No authentication or authorization.
 
 ---
 
-## Future Improvements
+## Future Enhancements
 
-- To be added
+- Environment Variables (.env)
+- DB Connection
+- JWT Authentication
+- Authorization & Role-Based Access
+- Update & Delete APIs
+- Pagination
+- Filtering & Sorting
+
+---
+
+## Learning Objectives week 1
+
+This project demonstrates:
+
+- Node.js 24 with ES Modules
+- Express 5 fundamentals
+- REST API development
+- API Versioning
+- Express Routing
+- Middleware Pipeline
+- Route Parameters
+- Request Validation
+- Centralized Error Handling
+- Layered Architecture

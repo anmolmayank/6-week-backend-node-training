@@ -1,10 +1,10 @@
 import usersData from "../mockdata/userData.js";
 
-export const getUsers = async () => {
+export const getUsers = () => {
   return usersData;
 };
 
-export const createUser = async (user) => {
+export const createUser = (user) => {
   const newUser = {
     id: usersData.length + 1,
 
