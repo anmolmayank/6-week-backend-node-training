@@ -12,7 +12,7 @@ app.use(express.json());
 
 app.use(logger);
 
-app.use("/users", userRoutes);
+app.use("/api/v1/users", userRoutes); // API Version added
 
 // Must come AFTER all routes
 app.use(notFoundHandler);
