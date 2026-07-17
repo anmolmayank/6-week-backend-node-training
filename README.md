@@ -44,8 +44,8 @@ backend-foundation/
 │   ├── controllers/
 │   │     user.controller.js
 │   │
-│   ├── data/
-│   │     users.js
+│   ├── mockData/
+│   │     usersData.js
 │   │
 │   ├── middlewares/
 │   │     error.middleware.js
