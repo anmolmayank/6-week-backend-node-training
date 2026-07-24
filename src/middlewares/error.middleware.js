@@ -1,9 +1,28 @@
-import { error } from "../utils/response.js";
+import { httpStatus } from "../constants/httpStatus.js";
 
-const errorHandler = (err, req, res, next) => {
-  console.error(err);
+/**
+ * ------------------------------------------------------------------
+ * Global Error Handler
+ * ------------------------------------------------------------------
+ *
+ * Centralized error handling middleware.
+ *
+ * Handles:
+ * - Validation errors
+ * - Business errors
+ * - Database errors
+ * - Unexpected server errors
+ * ------------------------------------------------------------------
+ */
+const errorHandler = (error, req, res, next) => {
+  const statusCode =
+    error.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
 
-  error(res, err.message, err.status || 500);
+  return res.status(statusCode).json({
+    success: false,
+    message: error.message || "Internal Server Error",
+    errors: error.errors ?? [],
+  });
 };
 
 export default errorHandler;
