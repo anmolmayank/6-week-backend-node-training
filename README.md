@@ -317,3 +317,381 @@ This project demonstrates:
 - Request Validation
 - Centralized Error Handling
 - Layered Architecture
+
+# Week 2 - User Management & Authentication
+
+## Objective
+
+Build a production-style User Management and Authentication module using **Node.js**, **Express**, **MongoDB**, and **JWT**, while following a clean layered architecture.
+
+---
+
+# Topics Covered
+
+## 1. Layered Architecture
+
+Implemented a clear separation of responsibilities:
+
+```text
+Routes
+    ↓
+Middleware
+    ↓
+Controllers
+    ↓
+Services
+    ↓
+Repositories
+    ↓
+Models
+    ↓
+MongoDB
+```
+
+Each layer is responsible for only one concern.
+
+---
+
+## 2. User CRUD APIs
+
+Implemented RESTful APIs for user management.
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/api/v1/users` | Create User |
+| GET | `/api/v1/users` | Get All Users *(Protected)* |
+| GET | `/api/v1/users/:id` | Get User by Id *(Protected + Owner Only)* |
+| PATCH | `/api/v1/users/:id` | Update User *(Protected + Owner Only)* |
+| DELETE | `/api/v1/users/:id` | Delete User *(Protected + Owner Only)* |
+
+---
+
+## 3. Request Validation
+
+Implemented request validation using **Zod**.
+
+Validated:
+
+- Request Body
+- URL Parameters
+- Query Parameters
+
+Validation is handled before the controller executes.
+
+Validated data is exposed through:
+
+```javascript
+req.validated
+```
+
+instead of mutating Express request properties.
+
+---
+
+## 4. Global Error Handling
+
+Implemented centralized error handling using:
+
+- ApiError
+- catchAsync
+- Error Middleware
+
+All errors return a consistent response format.
+
+---
+
+## 5. API Response Standardization
+
+Implemented a reusable ApiResponse utility.
+
+Example:
+
+```javascript
+ApiResponse.ok(...)
+ApiResponse.created(...)
+ApiResponse.success(...)
+```
+
+Every endpoint now follows a consistent response structure.
+
+---
+
+## 6. Repository Pattern
+
+Database access is isolated inside repositories.
+
+Responsibilities include:
+
+- Create User
+- Find User
+- Find Users
+- Update User
+- Delete User
+
+Repositories return plain JavaScript objects using:
+
+```javascript
+.lean()
+```
+
+or
+
+```javascript
+.toObject()
+```
+
+---
+
+## 7. Password Security
+
+Implemented secure password storage using **bcrypt**.
+
+Features:
+
+- Password hashing
+- Salt rounds configuration
+- Password comparison during login
+
+Passwords are never returned in API responses.
+
+---
+
+## 8. JWT Authentication
+
+Implemented JWT-based authentication.
+
+Features:
+
+- Generate Access Token
+- Verify Access Token
+- Token Expiration
+- JWT Secret using Environment Variables
+
+JWT Payload:
+
+```json
+{
+    "userId": "<Mongo ObjectId>"
+}
+```
+
+---
+
+## 9. Authentication Middleware
+
+Implemented middleware to protect APIs.
+
+Authentication flow:
+
+```text
+Read Authorization Header
+        ↓
+Validate Bearer Format
+        ↓
+Extract Token
+        ↓
+Verify JWT
+        ↓
+Find User
+        ↓
+Attach req.user
+        ↓
+next()
+```
+
+Protected endpoints require:
+
+```http
+Authorization: Bearer <JWT>
+```
+
+---
+
+## 10. Authorization Middleware
+
+Implemented owner-based authorization.
+
+Current rule:
+
+A user can only access, update or delete their own profile.
+
+Comparison:
+
+```javascript
+req.user._id === req.params.id
+```
+
+---
+
+## 11. Login API
+
+Implemented login endpoint.
+
+### Endpoint
+
+```http
+POST /api/v1/auth/login
+```
+
+Login Flow:
+
+```text
+Email
+    ↓
+Find User
+    ↓
+Compare Password
+    ↓
+Generate JWT
+    ↓
+Return Access Token
+```
+
+---
+
+## 12. Security Practices
+
+Implemented:
+
+- Password hashing
+- JWT Authentication
+- Protected APIs
+- Owner Authorization
+- Environment Variables
+- No password exposure
+- Generic authentication error messages
+- Validation before business logic
+
+---
+
+# Project Structure
+
+```text
+src
+├── config
+│   ├── db.js
+│   └── env.js
+│
+├── constants
+│   ├── auth.js
+│   └── httpStatus.js
+│
+├── controllers
+│   ├── auth.controller.js
+│   └── user.controller.js
+│
+├── middlewares
+│   ├── auth.middleware.js
+│   ├── authorize.middleware.js
+│   ├── error.middleware.js
+│   ├── logger.middleware.js
+│   ├── notFound.middleware.js
+│   └── validate.middleware.js
+│
+├── models
+│   └── user.model.js
+│
+├── repositories
+│   └── user.repository.js
+│
+├── routes
+│   ├── auth.routes.js
+│   └── user.routes.js
+│
+├── services
+│   ├── auth.service.js
+│   └── user.service.js
+│
+├── utils
+│   ├── ApiError.js
+│   ├── ApiResponse.js
+│   ├── catchAsync.js
+│   └── jwt.js
+│
+└── validations
+    ├── auth.validation.js
+    ├── common.validation.js
+    └── user.validation.js
+```
+
+---
+
+# APIs Tested
+
+Successfully tested:
+
+- User Registration
+- Duplicate Registration
+- Login
+- JWT Generation
+- JWT Verification
+- Protected Routes
+- Owner Authorization
+- Invalid Token
+- Missing Token
+- Invalid ObjectId
+- Update User
+- Delete User
+
+---
+
+# Key Learnings
+
+- Clean Layered Architecture
+- Separation of Concerns
+- Repository Pattern
+- Request Validation
+- Global Error Handling
+- Async Error Handling
+- Password Hashing
+- JWT Authentication
+- Authentication vs Authorization
+- Protected APIs
+- Owner-Based Authorization
+- Environment Variables
+- REST API Design
+- HTTP Status Codes
+- Security Best Practices
+
+---
+
+# Week 2 Status
+
+**Completed Successfully**
+
+✔ User CRUD APIs
+
+✔ Validation Middleware
+
+✔ Repository Pattern
+
+✔ Authentication
+
+✔ Authorization
+
+✔ JWT
+
+✔ Password Hashing
+
+✔ Global Error Handling
+
+✔ Protected Routes
+
+✔ Login API
+
+---
+
+## Next (Week 3)
+
+Planned topics:
+
+- Pagination
+- Searching & Filtering
+- Sorting
+- Refresh Tokens
+- Role-Based Access Control (RBAC)
+- File Uploads
+- Email Verification
+- Password Reset
+- API Documentation (Swagger/OpenAPI)
+- Unit & Integration Testing

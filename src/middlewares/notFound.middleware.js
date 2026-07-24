@@ -1,5 +1,5 @@
 import ApiError from "../utils/ApiError.js";
-import httpStatus from "../constants/httpStatus.js";
+import {httpStatus} from "../constants/httpStatus.js";
 
 const notFoundHandler = (req, res, next) => {
   next(

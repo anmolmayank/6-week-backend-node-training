@@ -1,34 +1,118 @@
-import * as response from "../utils/response.js";
 import * as userService from "../services/user.service.js";
 
-export const getUsers = async (req, res, next) => {
-  try {
-    const users =  userService.getUsers();
+import * as ApiResponse from "../utils/ApiResponse.js";
+import catchAsync from "../utils/catchAsync.js";
+import { httpStatus } from "../constants/httpStatus.js";
 
-    response.ok(res, users, "Users fetched successfully");
-  } catch (error) {
-    next(error);
-  }
-};
+/**
+ * ------------------------------------------------------------------
+ * @desc    Get all users
+ * @route   GET /api/v1/users
+ * @access  Public
+ * ------------------------------------------------------------------
+ */
+export const getUsers = catchAsync(async (req, res) => {
+  const users = await userService.getUsers();
 
-export const createUser = async (req, res, next) => {
-  try {
-    const user = await userService.createUser(req.body);
+  return ApiResponse.ok(
+    res,
+    users,
+    "Users fetched successfully."
+  );
+});
 
-    response.created(res, user, "User created successfully");
-  } catch (error) {
-    next(error);
-  }
-};
+/**
+ * ------------------------------------------------------------------
+ * @desc    Get user by ID
+ * @route   GET /api/v1/users/:id
+ * @access  Public
+ * ------------------------------------------------------------------
+ */
+export const getUserById = catchAsync(async (req, res) => {
+  const { id } = req.validated.params;
 
-export const getUserById = (req, res, next) => {
-  try {
-    const { id } = req.params;
+  const user = await userService.getUserById(id);
 
-    const user = userService.getUserById(id);
+  return ApiResponse.ok(
+    res,
+    user,
+    "User fetched successfully."
+  );
+});
 
-    return response.ok(res, user, "User fetched successfully");
-  } catch (error) {
-    next(error);
-  }
-};
+/**
+ * ------------------------------------------------------------------
+ * @desc    Create a new user
+ * @route   POST /api/v1/users
+ * @access  Public
+ * ------------------------------------------------------------------
+ */
+/**
+ * ------------------------------------------------------------------
+ * Create User
+ * ------------------------------------------------------------------
+ *
+ * Creates a new user using validated request data.
+ * ------------------------------------------------------------------
+ */
+export const createUser = catchAsync(async (req, res) => {
+  const { body } = req.validated;
+
+  const createdUser = await userService.createUser(body);
+
+  return ApiResponse.created(
+    res,
+    createdUser,
+    "User created successfully."
+  );
+});
+/**
+ * ------------------------------------------------------------------
+ * Update User
+ * ------------------------------------------------------------------
+ *
+ * Updates an existing user.
+ *
+ * Route:
+ * PATCH /api/v1/users/:id
+ * ------------------------------------------------------------------
+ */
+export const updateUser = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const updatedUser = await userService.updateUser(
+    id,
+    req.body
+  );
+
+  return ApiResponse.success(
+    res,
+    httpStatus.OK,
+    updatedUser,
+    "User updated successfully."
+  );
+});
+
+/**
+ * ------------------------------------------------------------------
+ * Delete User
+ * ------------------------------------------------------------------
+ *
+ * Deletes a user by id.
+ *
+ * Route:
+ * DELETE /api/v1/users/:id
+ * ------------------------------------------------------------------
+ */
+export const deleteUser = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  await userService.deleteUser(id);
+
+  return ApiResponse.success(
+    res,
+    httpStatus.OK,
+    null,
+    "User deleted successfully."
+  );
+});
