@@ -29,55 +29,47 @@ import ApiError from "../utils/ApiError.js";
  * ============================================================================
  */
 const uploadRentalAgreement = (req, res, next) => {
-    upload.single("agreement")(req, res, (error) => {
-        if (error instanceof multer.MulterError) {
-            switch (error.code) {
-                case "LIMIT_FILE_SIZE":
-                    return next(
-                        new ApiError(
-                            400,
-                            "Uploaded file exceeds the maximum allowed size of 10 MB."
-                        )
-                    );
+  console.log("========== Upload Debug ==========");
+  console.log("Headers:", req.headers["content-type"]);
+  console.log("Body:", req.body);
+  console.log("File:", req.file);
+  console.log("==================================");
+  upload.single("agreement")(req, res, (error) => {
+    if (error instanceof multer.MulterError) {
+      switch (error.code) {
+        case "LIMIT_FILE_SIZE":
+          return next(
+            new ApiError(
+              400,
+              "Uploaded file exceeds the maximum allowed size of 10 MB.",
+            ),
+          );
 
-                case "LIMIT_FILE_COUNT":
-                    return next(
-                        new ApiError(
-                            400,
-                            "Only one rental agreement can be uploaded."
-                        )
-                    );
+        case "LIMIT_FILE_COUNT":
+          return next(
+            new ApiError(400, "Only one rental agreement can be uploaded."),
+          );
 
-                default:
-                    return next(
-                        new ApiError(
-                            400,
-                            error.message
-                        )
-                    );
-            }
-        }
+        default:
+          return next(new ApiError(400, error.message));
+      }
+    }
 
-        if (error) {
-            return next(
-                new ApiError(
-                    400,
-                    error.message
-                )
-            );
-        }
+    if (error) {
+      return next(new ApiError(400, error.message));
+    }
 
-        if (!req.file) {
-            return next(
-                new ApiError(
-                    400,
-                    "Rental agreement PDF is required."
-                )
-            );
-        }
+    if (!req.file) {
+      console.log("========== Upload Debug ==========");
+      console.log("Headers:", req.headers["content-type"]);
+      console.log("Body:", req.body);
+      console.log("File:", req.file);
+      console.log("==================================");
+      return next(new ApiError(400, "Rental agreement PDF is required."));
+    }
 
-        next();
-    });
+    next();
+  });
 };
 
 export default uploadRentalAgreement;

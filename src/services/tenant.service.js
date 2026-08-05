@@ -59,7 +59,7 @@ export const uploadAgreement = async (
     file
 ) => {
     // Check if the tenant exists.
-    const tenant = await tenantRepository.getTenantById(tenantId);
+    const tenant = await tenantRepository.findTenantById(tenantId);
 
     if (!tenant) {
         throw new ApiError(404, "Tenant not found.");
@@ -114,7 +114,7 @@ export const uploadAgreement = async (
  */
 export const downloadAgreement = async (tenantId) => {
     // Check if the tenant exists.
-    const tenant = await tenantRepository.getTenantById(tenantId);
+    const tenant = await tenantRepository.findTenantById(tenantId);
 
     if (!tenant) {
         throw new ApiError(404, "Tenant not found.");
@@ -162,7 +162,7 @@ export const downloadAgreement = async (tenantId) => {
  */
 export const deleteAgreement = async (tenantId) => {
     // Check if the tenant exists.
-    const tenant = await tenantRepository.getTenantById(tenantId);
+    const tenant = await tenantRepository.findTenantById(tenantId);
 
     if (!tenant) {
         throw new ApiError(404, "Tenant not found.");

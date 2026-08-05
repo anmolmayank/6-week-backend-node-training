@@ -7,11 +7,35 @@ import userRoutes from "./routes/user.routes.js";
 import tenantRoutes from "./routes/tenant.routes.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./config/swagger.js";
+import cors from "cors";
+
 
 const app = express();
 
+/**
+ * ------------------------------------------------------------------
+ * Cross-Origin Resource Sharing (CORS)
+ * ------------------------------------------------------------------
+ */
+app.use(
+    cors({
+        origin: "http://localhost:5173",
+        credentials: true,
+    }),
+);
+
+/**
+ * ------------------------------------------------------------------
+ * Parse Incoming JSON
+ * ------------------------------------------------------------------
+ */
 app.use(express.json());
 
+/**
+ * ------------------------------------------------------------------
+ * Request Logger
+ * ------------------------------------------------------------------
+ */
 app.use(logger);
 
 app.use(

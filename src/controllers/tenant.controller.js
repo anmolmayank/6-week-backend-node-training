@@ -19,28 +19,18 @@ import catchAsync from "../utils/catchAsync.js";
  * Creates a tenant.
  */
 export const createTenant = catchAsync(async (req, res) => {
-    const tenant = await tenantService.createTenant(
-        req.validated.body
-    );
+  const tenant = await tenantService.createTenant(req.validated.body);
 
-    return ApiResponse.created(
-        res,
-        tenant,
-        "Tenant created successfully."
-    );
+  return ApiResponse.created(res, tenant, "Tenant created successfully.");
 });
 
 /**
  * Returns all tenants.
  */
 export const getAllTenants = catchAsync(async (req, res) => {
-    const tenants = await tenantService.getAllTenants();
+  const tenants = await tenantService.getAllTenants();
 
-    return ApiResponse.ok(
-        res,
-        tenants,
-        "Tenants fetched successfully."
-    );
+  return ApiResponse.ok(res, tenants, "Tenants fetched successfully.");
 });
 
 /**
@@ -68,18 +58,15 @@ export const getAllTenants = catchAsync(async (req, res) => {
  * ============================================================================
  */
 export const uploadAgreement = catchAsync(async (req, res) => {
-    const { tenantId } = req.validated.params;
+  const { tenantId } = req.validated.params;
 
-    const updatedTenant = await tenantService.uploadAgreement(
-        tenantId,
-        req.file
-    );
+  const updatedTenant = await tenantService.uploadAgreement(tenantId, req.file);
 
-    return ApiResponse.success(
-        res,
-        updatedTenant,
-        "Rental agreement uploaded successfully."
-    );
+  return ApiResponse.ok(
+    res,
+    updatedTenant,
+    "Rental agreement uploaded successfully.",
+  );
 });
 
 /**
@@ -106,16 +93,11 @@ export const uploadAgreement = catchAsync(async (req, res) => {
  * ============================================================================
  */
 export const downloadAgreement = catchAsync(async (req, res) => {
-    const { tenantId } = req.validated.params;
+  const { tenantId } = req.validated.params;
 
-    const agreement = await tenantService.downloadAgreement(
-        tenantId
-    );
+  const agreement = await tenantService.downloadAgreement(tenantId);
 
-    return res.download(
-        agreement.path,
-        agreement.originalName
-    );
+  return res.download(agreement.path, agreement.originalName);
 });
 
 /**
@@ -130,18 +112,18 @@ export const downloadAgreement = catchAsync(async (req, res) => {
  * @returns {Promise<Object|null>}
  * ============================================================================
  */
-export const removeRentalAgreement = async (tenantId) => {
-    return TenantModel.findByIdAndUpdate(
-        tenantId,
-        {
-            rentalAgreement: null,
-        },
-        {
-            new: true,
-            runValidators: true,
-        }
-    );
-};
+// export const removeRentalAgreement = async (tenantId) => {
+//   return TenantModel.findByIdAndUpdate(
+//     tenantId,
+//     {
+//       rentalAgreement: null,
+//     },
+//     {
+//       new: true,
+//       runValidators: true,
+//     },
+//   );
+// };
 
 /**
  * ============================================================================
@@ -166,14 +148,11 @@ export const removeRentalAgreement = async (tenantId) => {
  * @returns {Promise<void>}
  * ============================================================================
  */
+
 export const deleteAgreement = catchAsync(async (req, res) => {
-    const { tenantId } = req.validated.params;
+  const { tenantId } = req.validated.params;
 
-    await tenantService.deleteAgreement(tenantId);
+  await tenantService.deleteAgreement(tenantId);
 
-    return ApiResponse.success(
-        res,
-        null,
-        "Rental agreement deleted successfully."
-    );
+  return ApiResponse.ok(res, null, "Rental agreement deleted successfully.");
 });
