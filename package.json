@@ -9,7 +9,11 @@
     "clean": "rimraf dist",
     "build": "npm run clean && tsc",
     "start": "node dist/server.js",
-    "seed:tenants": "tsx src/scripts/tenant.seed.ts"
+    "seed:tenants": "tsx src/scripts/tenant.seed.ts",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
