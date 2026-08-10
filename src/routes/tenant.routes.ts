@@ -2,6 +2,20 @@
  * ============================================================================
  * Tenant Routes
  * ============================================================================
+ *
+ * Purpose
+ * -------
+ * Defines HTTP routes for Tenant operations.
+ *
+ * Responsibilities
+ * ----------------
+ * - Authenticate Tenant requests.
+ * - Validate request parameters/body.
+ * - Delegate requests to Tenant controllers.
+ *
+ * Business logic remains in the Service layer.
+ *
+ * ============================================================================
  */
 
 import express from "express";
@@ -16,12 +30,20 @@ import {
     createTenantSchema,
     deleteAgreementSchema,
     downloadAgreementSchema,
+    updateTenantSchema,
     uploadAgreementSchema,
 } from "../validations/tenant.validation.js";
 
-const router = express.Router();
+const router =
+    express.Router();
 
 /**
+ * ============================================================================
+ * Get All Tenants
+ * ============================================================================
+ *
+ * GET /api/v1/tenants
+ *
  * Returns all tenants.
  */
 router.get(
@@ -31,7 +53,13 @@ router.get(
 );
 
 /**
- * Creates a tenant.
+ * ============================================================================
+ * Create Tenant
+ * ============================================================================
+ *
+ * POST /api/v1/tenants
+ *
+ * Creates a new tenant.
  */
 router.post(
     "/",
@@ -42,10 +70,34 @@ router.post(
 
 /**
  * ============================================================================
+ * Update Tenant
+ * ============================================================================
+ *
+ * PATCH /api/v1/tenants/:tenantId
+ *
+ * Updates the editable tenant information:
+ *
+ * - tenantName
+ * - apartmentNumber
+ * - monthlyRent
+ *
+ * Rental agreement management remains separate.
+ */
+router.patch(
+    "/:tenantId",
+    authenticate,
+    validate(updateTenantSchema),
+    tenantController.updateTenant,
+);
+
+/**
+ * ============================================================================
  * Upload Rental Agreement
  * ============================================================================
  *
- * Uploads a rental agreement for an existing tenant.
+ * POST /api/v1/tenants/:tenantId/agreement
+ *
+ * Uploads or replaces a rental agreement.
  */
 router.post(
     "/:tenantId/agreement",
@@ -60,7 +112,9 @@ router.post(
  * Download Rental Agreement
  * ============================================================================
  *
- * Downloads the rental agreement for an existing tenant.
+ * GET /api/v1/tenants/:tenantId/agreement
+ *
+ * Downloads the rental agreement.
  */
 router.get(
     "/:tenantId/agreement",
@@ -74,7 +128,9 @@ router.get(
  * Delete Rental Agreement
  * ============================================================================
  *
- * Deletes the rental agreement for an existing tenant.
+ * DELETE /api/v1/tenants/:tenantId/agreement
+ *
+ * Deletes the rental agreement.
  */
 router.delete(
     "/:tenantId/agreement",

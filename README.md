@@ -1,6 +1,6 @@
 # Backend Foundation
 
-A RESTful API built using **Node.js 24.18.0**, **Express 5**, and **ES Modules** to understand the fundamentals of backend development and clean application architecture.
+A RESTful API built using **Node.js 24.18.0**, **Express 5**, **TypeScript**, **MongoDB**, **Mongoose**, and **ES Modules** to understand backend fundamentals, clean architecture, authentication, validation, file handling, and testing.
 
 ---
 
@@ -24,8 +24,16 @@ A RESTful API built using **Node.js 24.18.0**, **Express 5**, and **ES Modules**
 - Global Error Handling
 - Custom API Error Class
 - Standardized API Responses
-- In-Memory Data Store
-- Layered Architecture (Routes → Controllers → Services)
+- MongoDB and Mongoose
+- JWT Authentication
+- Password hashing with bcrypt
+- Zod request validation
+- Repository pattern
+- Tenant management
+- Rental agreement file upload/download/delete
+- Multer file handling
+- Layered Architecture (Routes → Controllers → Services → Repositories → Models)
+- Unit testing with Vitest
 
 ---
 
@@ -681,17 +689,213 @@ Successfully tested:
 
 ---
 
-## Next (Week 3)
+# Week 3 - Tenant Management & File Handling
 
-Planned topics:
+## Objective
 
-- Pagination
-- Searching & Filtering
-- Sorting
+Build a real-world Tenant Management module backed by MongoDB, including rental agreement file management.
+
+## Topics Covered
+
+### Tenant Management
+
+- Tenant model
+- Tenant repository
+- Tenant service
+- Tenant controller
+- Tenant routes
+- Tenant creation
+- Tenant listing
+- Tenant retrieval
+- Tenant update
+- Partial updates using PATCH
+
+### Rental Agreement Management
+
+- Multer
+- Multipart form-data
+- PDF upload
+- File metadata
+- Filesystem storage
+- Agreement replacement
+- Agreement download
+- Agreement deletion
+- Missing file handling
+
+### Validation
+
+- Create Tenant schema
+- Update Tenant schema
+- Tenant ObjectId validation
+- Partial update validation
+- Empty PATCH body validation
+
+### Testing
+
+- Tenant service unit tests
+- Tenant validation tests
+- Repository mocking
+- Filesystem mocking
+
+## Tenant APIs
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/tenants` | Get all tenants |
+| POST | `/api/v1/tenants` | Create tenant |
+| PATCH | `/api/v1/tenants/:tenantId` | Update tenant |
+| POST | `/api/v1/tenants/:tenantId/agreement` | Upload/replace agreement |
+| GET | `/api/v1/tenants/:tenantId/agreement` | Download agreement |
+| DELETE | `/api/v1/tenants/:tenantId/agreement` | Delete agreement |
+
+### Status
+
+**In Progress**
+
+The tenant backend, rental agreement APIs, validation, and unit tests have been implemented. The frontend workflow is still being completed.
+
+---
+
+# Current Learning Status
+
+```text
+Week 1
+Backend Fundamentals
+        │
+        ▼
+   COMPLETED
+        │
+        ▼
+Week 2
+User Management & Authentication
+        │
+        ▼
+   COMPLETED
+        │
+        ▼
+Week 3
+Tenant Management & File Handling
+        │
+        ▼
+   IN PROGRESS
+```
+
+---
+
+# Key Learnings
+
+The project currently demonstrates:
+
+- Node.js backend development
+- Express 5
+- TypeScript
+- ES Modules
+- REST API design
+- API versioning
+- Layered architecture
+- Separation of concerns
+- Repository Pattern
+- MongoDB
+- Mongoose
+- Schema design
+- Embedded schemas
+- Request validation
+- Zod
+- JWT authentication
+- Authentication vs Authorization
+- Password hashing
+- bcrypt
+- File uploads
+- Multer
+- Filesystem operations
+- Standardized API responses
+- Centralized error handling
+- Async error handling
+- Unit testing
+- Mocking
+- Vitest
+- ESLint
+- TypeScript compilation
+- Swagger/OpenAPI
+
+---
+
+# Current Limitations
+
+- Rental agreement files currently use local filesystem storage.
+- No cloud object storage integration yet.
+- No refresh token mechanism yet.
+- No role-based access control yet.
+- No pagination yet.
+- No advanced filtering or sorting yet.
+- Integration/E2E API testing is not yet fully implemented.
+
+---
+
+# Future Enhancements
+
+Planned improvements include:
+
 - Refresh Tokens
 - Role-Based Access Control (RBAC)
-- File Uploads
-- Email Verification
-- Password Reset
-- API Documentation (Swagger/OpenAPI)
-- Unit & Integration Testing
+- Pagination
+- Searching
+- Filtering
+- Sorting
+- Cloud file storage
+- File cleanup and storage abstraction
+- Integration testing
+- API/E2E testing
+- Rate limiting
+- Security headers
+- Production logging
+- Docker
+- CI/CD
+- Deployment
+- API performance optimization
+
+---
+
+# Project Status
+
+### Backend Foundation
+
+**Completed**
+
+### User Management & Authentication
+
+**Completed**
+
+### Tenant Management Backend
+
+**Implemented**
+
+### Rental Agreement Management
+
+**Implemented**
+
+### Tenant Management Frontend
+
+**In Progress**
+
+---
+
+# Learning Goal
+
+The overall goal of this project is to progress from a basic Express application to a maintainable, testable, production-oriented backend architecture.
+
+The project emphasizes not just making APIs work, but understanding:
+
+```text
+Why the code is structured this way
+        ↓
+Where business logic belongs
+        ↓
+How requests flow through the application
+        ↓
+How to validate and secure APIs
+        ↓
+How to test business logic independently
+        ↓
+How the architecture can scale
+```

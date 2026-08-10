@@ -9,13 +9,13 @@
  *
  * Important
  * ---------
- * TypeScript type checking is handled separately by TypeScript 7 (`tsc`).
+ * This project uses TypeScript 7.
  *
- * ESLint is responsible for general code-quality rules.
+ * The currently available typescript-eslint release does not yet support
+ * TypeScript 7, so ESLint is intentionally used only for JavaScript/general
+ * code-quality analysis.
  *
- * TypeScript-specific linting through typescript-eslint is intentionally
- * not enabled because the currently released typescript-eslint version
- * does not yet support TypeScript 7.
+ * TypeScript syntax and type checking are handled by `tsc`.
  *
  * ============================================================================
  */
@@ -46,13 +46,17 @@ export default [
 
     /**
      * ------------------------------------------------------------------------
-     * Backend configuration.
+     * JavaScript configuration.
      * ------------------------------------------------------------------------
+     *
+     * Only `.js` files are included here.
+     *
+     * TypeScript files are intentionally excluded because the current
+     * typescript-eslint release does not support TypeScript 7.
      */
     {
         files: [
             "src/**/*.js",
-            "src/**/*.ts",
         ],
 
         languageOptions: {
@@ -62,17 +66,12 @@ export default [
             ecmaVersion: "latest",
 
             /**
-             * Your project uses ESM.
+             * Project uses ES modules.
              */
             sourceType: "module",
 
             /**
-             * Node.js globals such as:
-             *
-             * process
-             * Buffer
-             * __dirname
-             * etc.
+             * Node.js globals.
              */
             globals: {
                 ...globals.node,
@@ -87,9 +86,7 @@ export default [
              */
 
             /**
-             * Backend applications commonly use console during development.
-             *
-             * Later we can replace this with a structured logger.
+             * Console is acceptable for the training backend.
              */
             "no-console": "off",
 
@@ -104,7 +101,7 @@ export default [
             "prefer-const": "error",
 
             /**
-             * Prefer shorthand object properties.
+             * Prefer object property shorthand.
              */
             "object-shorthand": "error",
 
@@ -119,23 +116,12 @@ export default [
             "no-duplicate-imports": "error",
 
             /**
-             * ================================================================
-             * Clean Code
-             * ================================================================
-             */
-
-            /**
-             * Prevent accidental use of variables that don't exist.
+             * Prevent undefined variables.
              */
             "no-undef": "error",
 
             /**
              * Prevent unused variables.
-             *
-             * Note:
-             * TypeScript-specific unused-variable analysis is still handled
-             * by TypeScript itself until TypeScript 7 support arrives in
-             * typescript-eslint.
              */
             "no-unused-vars": [
                 "warn",
