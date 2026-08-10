@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    "strict": true,
+
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    "forceConsistentCasingInFileNames": true,
+
+    "resolveJsonModule": true,
+
+    "skipLibCheck": true,
+
+    "types": ["node"],
+
+    "sourceMap": true
+  },
+
+  "include": [
+    "src",
+    "src/**/*.test.ts",
+  ],
+
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
+}

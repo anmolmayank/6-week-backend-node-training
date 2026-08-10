@@ -5,9 +5,19 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
-    "seed:tenants": "node src/scripts/tenant.seed.js"
+    "dev": "tsx watch src/server.ts",
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc",
+    "start": "node dist/server.js",
+    "seed:tenants": "tsx src/scripts/tenant.seed.ts",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run lint && npm run test:run"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -23,9 +33,27 @@
   },
   "allowScripts": {
     "bcrypt@6.0.0": true,
-    "@scarf/scarf": false
+    "@scarf/scarf": false,
+    "esbuild@0.28.1": true,
+    "fsevents@2.3.3": true
   },
   "devDependencies": {
-    "@types/cors": "^2.8.19"
+    "@eslint/js": "^10.0.1",
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.2.0",
+    "@types/node": "^26.1.2",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
+    "@vitest/coverage-v8": "^4.1.10",
+    "eslint": "^10.8.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.9.0",
+    "rimraf": "^6.1.3",
+    "tsx": "^4.23.9",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
   }
 }

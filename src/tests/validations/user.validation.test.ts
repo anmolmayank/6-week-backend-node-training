@@ -1,0 +1,77 @@
+/**
+ * ============================================================================
+ * File: user.validation.test.ts
+ * Layer: Unit Test
+ * ============================================================================
+ *
+ * Purpose
+ * -------
+ * Unit tests for User Validation Schemas.
+ *
+ * ============================================================================
+ */
+
+import { describe, expect, it } from "vitest";
+
+import {
+    createUserSchema,
+} from "../../validations/user.validation.js";
+
+describe("User Validation", () => {
+    describe("createUserSchema", () => {
+        it("should accept valid user", () => {
+            const payload = {
+                body: {
+                    name: "John Doe",
+                    email: "john@example.com",
+                    password: "Password@123",
+                },
+            };
+
+            expect(() => {
+                createUserSchema.parse(payload);
+            }).not.toThrow();
+        });
+
+        it("should reject invalid email", () => {
+            const payload = {
+                body: {
+                    name: "John Doe",
+                    email: "abc",
+                    password: "Password@123",
+                },
+            };
+
+            expect(() => {
+                createUserSchema.parse(payload);
+            }).toThrow();
+        });
+
+        it("should reject short password", () => {
+            const payload = {
+                body: {
+                    name: "John Doe",
+                    email: "john@example.com",
+                    password: "123",
+                },
+            };
+
+            expect(() => {
+                createUserSchema.parse(payload);
+            }).toThrow();
+        });
+
+        it("should reject missing name", () => {
+            const payload = {
+                body: {
+                    email: "john@example.com",
+                    password: "Password@123",
+                },
+            };
+
+            expect(() => {
+                createUserSchema.parse(payload);
+            }).toThrow();
+        });
+    });
+});
