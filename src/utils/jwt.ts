@@ -10,6 +10,7 @@
  *
  * Responsibilities
  * ----------------
+ *
  * - Generate signed access tokens.
  * - Verify access tokens.
  * - Return typed JWT payloads.
@@ -29,7 +30,9 @@ import { env } from "../config/env.js";
  * JWT Payload
  * ============================================================================
  */
-export interface AccessTokenPayload extends JwtPayload {
+
+export interface AccessTokenPayload
+    extends JwtPayload {
     userId: string;
 }
 
@@ -38,6 +41,7 @@ export interface AccessTokenPayload extends JwtPayload {
  * Generate Access Token
  * ============================================================================
  */
+
 export const generateAccessToken = (
     userId: string,
 ): string => {
@@ -46,7 +50,8 @@ export const generateAccessToken = (
     };
 
     const options: SignOptions = {
-        expiresIn: env.jwtExpiresIn as SignOptions["expiresIn"],
+        expiresIn:
+            env.jwtExpiresIn as SignOptions["expiresIn"],
     };
 
     return jwt.sign(
@@ -61,6 +66,7 @@ export const generateAccessToken = (
  * Verify Access Token
  * ============================================================================
  */
+
 export const verifyAccessToken = (
     token: string,
 ): AccessTokenPayload => {
@@ -69,8 +75,16 @@ export const verifyAccessToken = (
         env.jwtSecret,
     );
 
+    /**
+     * jsonwebtoken can return either:
+     *
+     * - JwtPayload
+     * - string
+     *
+     * A JWT payload must be an object, not a string.
+     */
     if (typeof decodedToken === "string") {
-        throw new Error(
+        throw new TypeError(
             "Invalid JWT payload.",
         );
     }

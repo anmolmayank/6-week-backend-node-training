@@ -39,7 +39,12 @@ import tenantRoutes from "./routes/tenant.routes.js";
 import userRoutes from "./routes/user.routes.js";
 
 const app: Express = express();
-
+/**
+ * Security:
+ * Prevent Express from disclosing framework/version information
+ * through the X-Powered-By response header.
+ */
+app.disable("x-powered-by");
 /**
  * ============================================================================
  * Global Middleware
