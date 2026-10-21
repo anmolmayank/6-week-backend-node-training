@@ -39,15 +39,16 @@ dotenv.config();
  * startup.
  */
 const requiredEnvVariables = [
-    "PORT",
-    "CLIENT_URL",
-    "NODE_ENV",
-    "DB_USERNAME",
-    "DB_PASSWORD",
-    "DB_CLUSTER",
-    "DB_NAME",
-    "JWT_SECRET",
-    "JWT_EXPIRES_IN",
+  "PORT",
+  "CLIENT_URL",
+  "NODE_ENV",
+  "DB_USERNAME",
+  "DB_PASSWORD",
+  "DB_CLUSTER",
+  "DB_NAME",
+  "JWT_SECRET",
+  "JWT_EXPIRES_IN",
+  "FASTAPI_BASE_URL",
 ] as const;
 
 /**
@@ -58,11 +59,9 @@ const requiredEnvVariables = [
  * Ensures every required environment variable exists.
  */
 requiredEnvVariables.forEach((key) => {
-    if (!process.env[key]) {
-        throw new Error(
-            `Missing required environment variable: ${key}`,
-        );
-    }
+  if (!process.env[key]) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
 });
 
 /**
@@ -78,47 +77,51 @@ requiredEnvVariables.forEach((key) => {
  * the non-null assertion operator (!) is safe to use.
  */
 export const env = {
-    /**
-     * Application Port
-     */
-    port: Number(process.env.PORT),
+  /**
+   * Application Port
+   */
+  port: Number(process.env.PORT),
 
-    /**
-     * Allowed Frontend Origin
-     */
-    clientUrl: process.env.CLIENT_URL!,
+  /**
+   * Allowed Frontend Origin
+   */
+  clientUrl: process.env.CLIENT_URL!,
 
-    /**
-     * Current Runtime Environment
-     */
-    nodeEnv: process.env.NODE_ENV!,
+  /**
+   * Current Runtime Environment
+   */
+  nodeEnv: process.env.NODE_ENV!,
 
-    /**
-     * MongoDB Credentials
-     */
-    dbUsername: process.env.DB_USERNAME!,
+  /**
+   * FastAPI Microservice Base URL
+   */
+  fastApiBaseUrl: process.env.FASTAPI_BASE_URL!,
 
-    dbPassword: process.env.DB_PASSWORD!,
+  /**
+   * MongoDB Credentials
+   */
+  dbUsername: process.env.DB_USERNAME!,
 
-    dbCluster: process.env.DB_CLUSTER!,
+  dbPassword: process.env.DB_PASSWORD!,
 
-    dbName: process.env.DB_NAME!,
+  dbCluster: process.env.DB_CLUSTER!,
 
-    /**
-     * JWT Secret Key
-     */
-    jwtSecret: process.env.JWT_SECRET!,
+  dbName: process.env.DB_NAME!,
 
-    /**
-     * JWT Expiration Duration
-     *
-     * Examples:
-     * - 15m
-     * - 1h
-     * - 7d
-     */
-    jwtExpiresIn:
-        process.env.JWT_EXPIRES_IN! as SignOptions["expiresIn"],
+  /**
+   * JWT Secret Key
+   */
+  jwtSecret: process.env.JWT_SECRET!,
+
+  /**
+   * JWT Expiration Duration
+   *
+   * Examples:
+   * - 15m
+   * - 1h
+   * - 7d
+   */
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN! as SignOptions["expiresIn"],
 } as const;
 
 /**

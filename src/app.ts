@@ -37,6 +37,7 @@ import notFoundHandler from "./middlewares/notFound.middleware.js";
 import authRoutes from "./routes/auth.routes.js";
 import tenantRoutes from "./routes/tenant.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import activityLogRoutes from "./routes/activity-log.routes.js";
 
 const app: Express = express();
 /**
@@ -85,20 +86,6 @@ app.use(
  */
 app.use(logger);
 
-/**
- * ============================================================================
- * Health Check
- * ============================================================================
- */
-app.get(
-    "/health",
-    (_req, res) => {
-        res.json({
-            success: true,
-            status: "UP",
-        });
-    }
-);
 
 /**
  * ============================================================================
@@ -113,12 +100,29 @@ app.use(
 
 /**
  * ============================================================================
+ * Health Check
+ * ============================================================================
+ */
+app.get(
+    "/health",
+    (_req, res) => {
+        res.json({
+            success: true,
+            status: "UP",
+            service: "node-backend",
+        });
+    }
+);
+
+/**
+ * ============================================================================
  * API Routes
  * ============================================================================
  */
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/tenants", tenantRoutes);
+app.use("/api/v1/activity-logs", activityLogRoutes);
 
 /**
  * ============================================================================
