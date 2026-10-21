@@ -1,3 +1,4 @@
+
 /**
  * ============================================================================
  * File: swagger.ts
@@ -18,7 +19,6 @@
  */
 
 import swaggerJsdoc from "swagger-jsdoc";
-
 import type { Options } from "swagger-jsdoc";
 
 /**
@@ -53,6 +53,10 @@ const options: Options = {
                 name: "Tenants",
                 description: "Tenant Management APIs",
             },
+            {
+                name: "Activity Logs",
+                description: "Activity Log management APIs",
+            },
         ],
 
         components: {
@@ -67,17 +71,13 @@ const options: Options = {
             schemas: {
                 LoginRequest: {
                     type: "object",
-                    required: [
-                        "email",
-                        "password",
-                    ],
+                    required: ["email", "password"],
 
                     properties: {
                         email: {
                             type: "string",
                             example: "admin@propertynest.com",
                         },
-
                         password: {
                             type: "string",
                             example: "Password@123",
@@ -93,15 +93,12 @@ const options: Options = {
                             type: "boolean",
                             example: true,
                         },
-
                         message: {
                             type: "string",
                             example: "Login successful.",
                         },
-
                         data: {
                             type: "object",
-
                             properties: {
                                 token: {
                                     type: "string",
@@ -121,11 +118,9 @@ const options: Options = {
                             type: "boolean",
                             example: false,
                         },
-
                         message: {
                             type: "string",
-                            example:
-                                "Invalid credentials.",
+                            example: "Invalid credentials.",
                         },
                     },
                 },
@@ -136,9 +131,7 @@ const options: Options = {
     /**
      * Source files containing Swagger annotations.
      */
-    apis: [
-        "./src/routes/*.ts",
-    ],
+    apis: ["./src/routes/*.ts"],
 };
 
 /**
