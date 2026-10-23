@@ -7,6 +7,10 @@ export const mockUser = {
 
     email: "john@example.com",
 
+    role: "owner" as const,
+
+    tenantId: null,
+
     password: "hashed-password",
 
     createdAt: new Date(),

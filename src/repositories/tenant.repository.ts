@@ -183,3 +183,8 @@ export const removeRentalAgreement = async (
  *
  * ============================================================================
  */
+
+/** Permanently removes a tenant record after service-level cleanup checks. */
+export const deleteTenantById = async (tenantId: string) => {
+    return TenantModel.findByIdAndDelete(tenantId).lean();
+};

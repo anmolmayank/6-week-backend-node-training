@@ -149,3 +149,17 @@ export const findByEmailWithPassword = (
         .select("+password")
         .lean();
 };
+
+/** Find the login account currently linked to a tenant record. */
+export const findByTenantId = (tenantId: string) => {
+    return UserModel.findOne({ tenantId }).lean();
+};
+
+/** Clear the account's tenant link when a tenant record is deleted. */
+export const clearTenantAssociation = (tenantId: string) => {
+    return UserModel.updateMany(
+        { tenantId },
+        { $set: { tenantId: null } },
+        { runValidators: true },
+    );
+};

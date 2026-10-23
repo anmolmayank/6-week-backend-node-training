@@ -3,6 +3,7 @@ import express from "express";
 import * as authController from "../controllers/auth.controller.js";
 
 import validate from "../middlewares/validate.middleware.js";
+import authenticate from "../middlewares/auth.middleware.js";
 import { loginSchema } from "../validations/auth.validation.js";
 
 
@@ -10,7 +11,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/v1/auth/login:
+ * /auth/login:
  *   post:
  *     tags:
  *       - Authentication
@@ -56,5 +57,20 @@ router.post(
     validate(loginSchema),
     authController.login,
 );
+
+/** @openapi
+ * /auth/me:
+ *   get:
+ *     tags: [Authentication]
+ *     summary: Get the authenticated user's identity and role
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       "200":
+ *         description: Current user identity returned.
+ *       "401":
+ *         description: Missing or invalid access token.
+ */
+router.get("/me", authenticate, authController.getCurrentUser);
 
 export default router;

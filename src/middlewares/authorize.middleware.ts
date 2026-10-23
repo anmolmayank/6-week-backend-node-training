@@ -1,60 +1,17 @@
-/**
- * ============================================================================
- * File: authorize.middleware.ts
- * Layer: Middleware
- * ============================================================================
- *
- * Purpose
- * -------
- * Ensures users can access only their own resources.
- *
- * Responsibilities
- * ----------------
- * - Compare authenticated user id.
- * - Compare requested resource id.
- * - Reject unauthorized access.
- *
- * ============================================================================
- */
-
-import type {
-    NextFunction,
-    Request,
-    Response,
-} from "express";
-
+/** Enforces owner-only access. Resource ownership checks belong in services. */
+import type { NextFunction, Request, Response } from "express";
 import ApiError from "../utils/ApiError.js";
-
 import { httpStatus } from "../constants/httpStatus.js";
 
-/**
- * ============================================================================
- * Authorization Middleware
- * ============================================================================
- */
-const authorizeOwner = (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-): void => {
-    const authenticatedUser = req.user;
-
-    if (!authenticatedUser) {
-        throw new ApiError(
-            httpStatus.UNAUTHORIZED,
-            "Authentication is required.",
-        );
+const authorizeOwner = (req: Request, _res: Response, next: NextFunction): void => {
+    if (!req.user) {
+        next(new ApiError(httpStatus.UNAUTHORIZED, "Authentication is required."));
+        return;
     }
 
-    const { id } = req.params;
-
-    if (
-        authenticatedUser._id.toString() !== id
-    ) {
-        throw new ApiError(
-            httpStatus.FORBIDDEN,
-            "You are not authorized to perform this action.",
-        );
+    if (req.user.role !== "owner") {
+        next(new ApiError(httpStatus.FORBIDDEN, "Owner access is required."));
+        return;
     }
 
     next();

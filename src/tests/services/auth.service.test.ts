@@ -65,6 +65,8 @@ describe("Authentication Service", () => {
                 _id: new Types.ObjectId(),
                 name: "John Doe",
                 email: "john@example.com",
+                role: "owner",
+                tenantId: null,
                 password: "hashed-password",
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -120,6 +122,8 @@ describe("Authentication Service", () => {
              */
             expect(result.user)
                 .not.toHaveProperty("password");
+            expect(result.user.role).toBe("owner");
+            expect(result.user.tenantId).toBeNull();
 
             /**
              * Repository should be called once.

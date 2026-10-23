@@ -1,4 +1,7 @@
 import bcrypt from "bcrypt";
+import { Types } from "mongoose";
+import * as tenantRepository from "../repositories/tenant.repository.js";
+import type { User, UserRole } from "../models/user.model.js";
 
 import { authConfig } from "../constants/auth.js";
 import { httpStatus } from "../constants/httpStatus.js";
@@ -12,8 +15,17 @@ import ApiError from "../utils/ApiError.js";
  * Get all users
  * ------------------------------------------------------------------
  */
-export const getUsers = () => {
-    return userRepository.findAll();
+export const getUsers = async () => {
+    const users = await userRepository.findAll();
+    return users.map((user) => ({
+        _id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        tenantId: user.tenantId ? user.tenantId.toString() : null,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+    }));
 };
 
 /**
@@ -37,7 +49,15 @@ export const getUserById = async (
         );
     }
 
-    return user;
+    return {
+        _id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        tenantId: user.tenantId ? user.tenantId.toString() : null,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+    };
 };
 
 /**
@@ -85,6 +105,10 @@ export const createUser = async (
     const newUser = {
         ...userData,
         password: hashedPassword,
+        // Public registration always creates an unlinked tenant account.
+        // Role promotion is an owner-only operation.
+        role: "tenant" as const,
+        tenantId: null,
     };
 
     /**
@@ -99,11 +123,15 @@ export const createUser = async (
      * Remove the password before returning.
      */
     const {
-        password,
+        password: _password,
         ...safeUser
     } = createdUser;
 
-    return safeUser;
+    return {
+        ...safeUser,
+        _id: String(safeUser._id),
+        tenantId: safeUser.tenantId ? String(safeUser.tenantId) : null,
+    };
 };
 
 /**
@@ -127,38 +155,90 @@ export const createUser = async (
  */
 export const updateUser = async (
     userId: string,
-    updateData: Record<string, unknown>,
+    updateData: {
+        name?: string;
+        email?: string;
+        role?: UserRole;
+        tenantId?: string | null;
+    },
 ) => {
-    /**
-     * Password updates are not allowed here.
-     */
-    if ("password" in updateData) {
-        throw new ApiError(
-            httpStatus.BAD_REQUEST,
-            "Password cannot be updated using this endpoint.",
-        );
+    const existingUser = await userRepository.findById(userId);
+    if (!existingUser) {
+        throw new ApiError(httpStatus.NOT_FOUND, "User not found.");
     }
 
-    /**
-     * Update user.
-     */
-    const updatedUser =
-        await userRepository.updateById(
-            userId,
-            updateData,
-        );
+    const update: Partial<User> = {};
+    if (updateData.name !== undefined) update.name = updateData.name;
 
-    /**
-     * Ensure the user exists.
-     */
+    if (updateData.email !== undefined && updateData.email !== existingUser.email) {
+        const userWithEmail = await userRepository.findByEmail(updateData.email);
+        if (userWithEmail && userWithEmail._id.toString() !== userId) {
+            throw new ApiError(httpStatus.CONFLICT, "Email already exists.");
+        }
+        update.email = updateData.email;
+    }
+
+    if (updateData.role !== undefined) update.role = updateData.role;
+
+    // Promote/demote operations always clear an obsolete tenant association.
+    if (updateData.role === "owner") {
+        update.tenantId = null;
+    } else if (
+        updateData.role === "tenant" &&
+        existingUser.role === "owner" &&
+        updateData.tenantId === undefined
+    ) {
+        // Demoting an owner creates an unlinked tenant account. The owner can
+        // explicitly link it to a tenant record in a subsequent update.
+        update.tenantId = null;
+    } else if (updateData.tenantId !== undefined) {
+        if (updateData.tenantId === null) {
+            update.tenantId = null;
+        } else {
+            if ((updateData.role ?? existingUser.role) !== "tenant") {
+                throw new ApiError(
+                    httpStatus.BAD_REQUEST,
+                    "Only tenant accounts can be linked to a tenant record.",
+                );
+            }
+
+            const tenant = await tenantRepository.findTenantById(updateData.tenantId);
+            if (!tenant) {
+                throw new ApiError(httpStatus.NOT_FOUND, "Tenant record not found.");
+            }
+
+            const linkedUser = await userRepository.findByTenantId(updateData.tenantId);
+            if (linkedUser && linkedUser._id.toString() !== userId) {
+                throw new ApiError(
+                    httpStatus.CONFLICT,
+                    "This tenant record is already linked to another user account.",
+                );
+            }
+
+            update.tenantId = new Types.ObjectId(updateData.tenantId);
+        }
+    }
+
+    const updatedUser = await userRepository.updateById(
+        userId,
+        update,
+    );
+
     if (!updatedUser) {
-        throw new ApiError(
-            httpStatus.NOT_FOUND,
-            "User not found.",
-        );
+        throw new ApiError(httpStatus.NOT_FOUND, "User not found.");
     }
 
-    return updatedUser;
+    const {
+        password: _password,
+        _id,
+        tenantId,
+        ...safeUser
+    } = updatedUser;
+    return {
+        ...safeUser,
+        _id: _id.toString(),
+        tenantId: tenantId ? tenantId.toString() : null,
+    };
 };
 
 /**
@@ -185,5 +265,13 @@ export const deleteUser = async (
         );
     }
 
-    return deletedUser;
+    return {
+        _id: deletedUser._id.toString(),
+        name: deletedUser.name,
+        email: deletedUser.email,
+        role: deletedUser.role,
+        tenantId: deletedUser.tenantId ? deletedUser.tenantId.toString() : null,
+        createdAt: deletedUser.createdAt,
+        updatedAt: deletedUser.updatedAt,
+    };
 };

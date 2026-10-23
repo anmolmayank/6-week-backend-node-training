@@ -11,7 +11,7 @@ import { httpStatus } from "../constants/httpStatus.js";
  * ------------------------------------------------------------------
  * @desc    Get all users
  * @route   GET /api/v1/users
- * @access  Public
+ * @access  Owner only
  * ------------------------------------------------------------------
  */
 export const getUsers = catchAsync(async (req: Request, res: Response) => {
@@ -24,7 +24,7 @@ export const getUsers = catchAsync(async (req: Request, res: Response) => {
  * ------------------------------------------------------------------
  * @desc    Get user by ID
  * @route   GET /api/v1/users/:id
- * @access  Public
+ * @access  Owner only
  * ------------------------------------------------------------------
  */
 export const getUserById = catchAsync(async (req: Request, res: Response) => {
@@ -66,18 +66,25 @@ export const createUser = catchAsync(async (req: Request, res: Response) => {
  * Update User
  * ------------------------------------------------------------------
  *
- * Updates an existing user.
+ * Owner-managed update of account details, role, and optional tenant link.
  *
  * Route:
  * PATCH /api/v1/users/:id
  * ------------------------------------------------------------------
  */
 export const updateUser = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params as {
-    id: string;
-  };
+  const { id } = req.validated.params as { id: string };
+  const { body } = req.validated;
 
-  const updatedUser = await userService.updateUser(id, req.body);
+  const updatedUser = await userService.updateUser(
+    id,
+    body as {
+      name?: string;
+      email?: string;
+      role?: "owner" | "tenant";
+      tenantId?: string | null;
+    },
+  );
 
   return ApiResponse.success(
     res,
@@ -92,16 +99,14 @@ export const updateUser = catchAsync(async (req: Request, res: Response) => {
  * Delete User
  * ------------------------------------------------------------------
  *
- * Deletes a user by id.
+ * Owner-only deletion of a user account.
  *
  * Route:
  * DELETE /api/v1/users/:id
  * ------------------------------------------------------------------
  */
 export const deleteUser = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params as {
-    id: string;
-  };
+  const { id } = req.validated.params as { id: string };
 
   await userService.deleteUser(id);
 

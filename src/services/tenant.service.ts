@@ -34,6 +34,7 @@
  */
 
 import fs from "node:fs/promises";
+import * as userRepository from "../repositories/user.repository.js";
 
 import * as tenantRepository from "../repositories/tenant.repository.js";
 
@@ -346,4 +347,74 @@ export const deleteAgreement = async (
     return tenantRepository.removeRentalAgreement(
         tenantId,
     );
+};
+
+/**
+ * Return a tenant's own profile without exposing filesystem paths or internal
+ * storage names for the agreement document.
+ */
+export const getTenantProfileForUser = async (tenantId: string) => {
+    const tenant = await tenantRepository.findTenantById(tenantId);
+    if (!tenant) {
+        throw new ApiError(httpStatus.NOT_FOUND, "Tenant record not found.");
+    }
+
+    const agreement = tenant.rentalAgreement;
+    return {
+        ...tenant,
+        rentalAgreement: agreement
+            ? {
+                originalName: agreement.originalName,
+                mimeType: agreement.mimeType,
+                size: agreement.size,
+                uploadedAt: agreement.uploadedAt,
+            }
+            : null,
+    };
+};
+
+/**
+ * Delete a tenant, unlink the associated login account, and clean up its PDF.
+ * Ticket documents retain their tenant name/apartment snapshots for audit.
+ */
+export const deleteTenant = async (tenantId: string) => {
+    const tenant = await tenantRepository.findTenantById(tenantId);
+    if (!tenant) {
+        throw new ApiError(httpStatus.NOT_FOUND, "Tenant not found.");
+    }
+
+    const deletedTenant = await tenantRepository.deleteTenantById(tenantId);
+    if (!deletedTenant) {
+        throw new ApiError(httpStatus.NOT_FOUND, "Tenant not found.");
+    }
+
+    // A tenant login remains a tenant account but becomes unlinked. It cannot
+    // access any tenant-scoped endpoint until an owner links it to a record.
+    // Try file cleanup even if the account unlink update needs operational repair.
+    try {
+        await userRepository.clearTenantAssociation(tenantId);
+    } catch (error) {
+        console.error("Tenant deleted but account unlinking failed.", {
+            tenantId,
+            error: error instanceof Error ? error.message : "Unknown error",
+        });
+    }
+
+    if (tenant.rentalAgreement?.path) {
+        try {
+            await fs.unlink(tenant.rentalAgreement.path);
+        } catch (error) {
+            const code = (error as NodeJS.ErrnoException).code;
+            if (code !== "ENOENT") {
+                // Database deletion is already committed. Log cleanup failure
+                // so the orphaned file can be removed operationally.
+                console.error("Tenant deleted but rental-agreement cleanup failed.", {
+                    tenantId,
+                    code,
+                });
+            }
+        }
+    }
+
+    return { tenantId };
 };

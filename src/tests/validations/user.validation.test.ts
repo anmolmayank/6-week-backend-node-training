@@ -61,6 +61,22 @@ describe("User Validation", () => {
             }).toThrow();
         });
 
+        it("should not accept client-selected owner roles during public registration", () => {
+            const payload = {
+                body: {
+                    name: "New Tenant",
+                    email: "new-tenant@example.com",
+                    password: "Password@123",
+                    role: "owner",
+                    tenantId: "689d58b7d6ef8d8c0b7d1234",
+                },
+            };
+
+            const parsed = createUserSchema.parse(payload);
+            expect(parsed.body).not.toHaveProperty("role");
+            expect(parsed.body).not.toHaveProperty("tenantId");
+        });
+
         it("should reject missing name", () => {
             const payload = {
                 body: {

@@ -56,6 +56,12 @@ const updateUserBodySchema = z.object({
             email.trim().toLowerCase(),
         )
         .optional(),
+
+    /** Owner-managed role assignment; public registration cannot set this. */
+    role: z.enum(["owner", "tenant"]).optional(),
+
+    /** Link a tenant account to a tenant record, or null to unlink it. */
+    tenantId: objectIdSchema.nullable().optional(),
 });
 
 /**
@@ -81,12 +87,17 @@ export const updateUserSchema = z
         body: updateUserBodySchema,
     })
     .refine(
-        ({ body }) =>
-            Object.keys(body).length > 0,
+        ({ body }) => Object.keys(body).length > 0,
         {
-            message:
-                "At least one field must be provided for update.",
+            message: "At least one field must be provided for update.",
             path: ["body"],
+        },
+    )
+    .refine(
+        ({ body }) => !(body.role === "owner" && body.tenantId),
+        {
+            message: "An owner account cannot be linked to a tenant record.",
+            path: ["body", "tenantId"],
         },
     );
 

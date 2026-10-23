@@ -358,3 +358,8 @@ export type DeleteAgreementSchema =
  *
  * ============================================================================
  */
+
+/** Validate the owner-only tenant deletion route parameter. */
+export const deleteTenantSchema = z.object({
+    params: z.object({ tenantId: objectIdSchema }),
+});

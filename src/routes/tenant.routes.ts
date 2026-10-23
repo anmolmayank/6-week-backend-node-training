@@ -9,7 +9,7 @@
  *
  * Responsibilities
  * ----------------
- * - Authenticate Tenant requests.
+ * - Authenticate requests and enforce owner/tenant role boundaries.
  * - Validate request parameters/body.
  * - Delegate requests to Tenant controllers.
  *
@@ -23,11 +23,14 @@ import express from "express";
 import * as tenantController from "../controllers/tenant.controller.js";
 
 import authenticate from "../middlewares/auth.middleware.js";
+import authorizeOwner from "../middlewares/authorize.middleware.js";
+import authorizeTenant from "../middlewares/authorize-tenant.middleware.js";
 import uploadRentalAgreement from "../middlewares/upload.middleware.js";
 import validate from "../middlewares/validate.middleware.js";
 
 import {
   createTenantSchema,
+  deleteTenantSchema,
   deleteAgreementSchema,
   downloadAgreementSchema,
   updateTenantSchema,
@@ -62,7 +65,43 @@ const router = express.Router();
  *       "401":
  *         description: Authentication is missing or invalid.
  */
-router.get("/", authenticate, tenantController.getAllTenants);
+/**
+ * @openapi
+ * /tenants/me:
+ *   get:
+ *     tags: [Tenant Portal]
+ *     summary: Get my tenant profile
+ *     description: Returns only the tenant record linked to the authenticated tenant account. Agreement file-system paths are omitted.
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       "200": { description: Tenant profile returned. }
+ *       "401": { description: Authentication required. }
+ *       "403": { description: Account is not linked to a tenant record. }
+ *       "404": { description: Tenant record not found. }
+ */
+router.get("/me", authenticate, authorizeTenant, tenantController.getMyTenant);
+
+/**
+ * @openapi
+ * /tenants/me/agreement:
+ *   get:
+ *     tags: [Tenant Portal]
+ *     summary: Download my rental agreement
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       "200":
+ *         description: Rental agreement downloaded.
+ *         content:
+ *           application/octet-stream:
+ *             schema: { type: string, format: binary }
+ *       "403": { description: Account is not linked to a tenant record. }
+ *       "404": { description: Agreement not found. }
+ */
+router.get("/me/agreement", authenticate, authorizeTenant, tenantController.downloadMyAgreement);
+
+router.get("/", authenticate, authorizeOwner, tenantController.getAllTenants);
 
 /**
  * ============================================================================
@@ -120,6 +159,7 @@ router.get("/", authenticate, tenantController.getAllTenants);
 router.post(
   "/",
   authenticate,
+  authorizeOwner,
   validate(createTenantSchema),
   tenantController.createTenant,
 );
@@ -194,8 +234,37 @@ router.post(
 router.patch(
   "/:tenantId",
   authenticate,
+  authorizeOwner,
   validate(updateTenantSchema),
   tenantController.updateTenant,
+);
+
+/**
+ * @openapi
+ * /tenants/{tenantId}:
+ *   delete:
+ *     tags: [Tenants]
+ *     summary: Delete a tenant
+ *     description: Deletes the tenant record, unlinks its login account, and attempts rental-agreement file cleanup. Historical maintenance tickets retain tenant snapshots.
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: tenantId
+ *         required: true
+ *         schema: { type: string, pattern: '^[a-fA-F0-9]{24}$' }
+ *     responses:
+ *       "200": { description: Tenant deleted successfully. }
+ *       "401": { description: Authentication required. }
+ *       "403": { description: Owner access required. }
+ *       "404": { description: Tenant not found. }
+ */
+router.delete(
+  "/:tenantId",
+  authenticate,
+  authorizeOwner,
+  validate(deleteTenantSchema),
+  tenantController.deleteTenant,
 );
 
 /**
@@ -255,8 +324,9 @@ router.patch(
 router.post(
   "/:tenantId/agreement",
   authenticate,
-  uploadRentalAgreement,
+  authorizeOwner,
   validate(uploadAgreementSchema),
+  uploadRentalAgreement,
   tenantController.uploadAgreement,
 );
 
@@ -307,6 +377,7 @@ router.post(
 router.get(
   "/:tenantId/agreement",
   authenticate,
+  authorizeOwner,
   validate(downloadAgreementSchema),
   tenantController.downloadAgreement,
 );
@@ -353,6 +424,7 @@ router.get(
 router.delete(
   "/:tenantId/agreement",
   authenticate,
+  authorizeOwner,
   validate(deleteAgreementSchema),
   tenantController.deleteAgreement,
 );

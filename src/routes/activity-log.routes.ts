@@ -54,11 +54,13 @@
  *         meta:
  *           type: object
  *
- * /api/v1/activity-logs:
+ * /activity-logs:
  *   post:
  *     tags:
  *       - Activity Logs
- *     summary: Create an activity log
+ *     summary: Create an activity log (owner only)
+ *     security:
+ *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -78,7 +80,9 @@
  *   get:
  *     tags:
  *       - Activity Logs
- *     summary: Get activity logs
+ *     summary: Get activity logs (owner only)
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: query
  *         name: skip
@@ -99,11 +103,13 @@
  *       '400':
  *         description: Invalid pagination parameters
  *
- * /api/v1/activity-logs/{activityId}:
+ * /activity-logs/{activityId}:
  *   get:
  *     tags:
  *       - Activity Logs
- *     summary: Get an activity log by ID
+ *     summary: Get an activity log by ID (owner only)
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: activityId
@@ -131,9 +137,9 @@
  *
  * Endpoints
  * ---------
- * POST   /api/v1/activity-logs
- * GET    /api/v1/activity-logs
- * GET    /api/v1/activity-logs/:activityId
+ * POST   /activity-logs
+ * GET    /activity-logs
+ * GET    /activity-logs/:activityId
  *
  * ============================================================================
  */
@@ -147,6 +153,8 @@ import {
 } from "../controllers/activity-log.controller.js";
 
 import validate from "../middlewares/validate.middleware.js";
+import authenticate from "../middlewares/auth.middleware.js";
+import authorizeOwner from "../middlewares/authorize.middleware.js";
 
 import {
     activityLogIdSchema,
@@ -160,34 +168,40 @@ import {
 const router = Router();
 
 /**
- * POST /api/v1/activity-logs
+ * POST /activity-logs
  *
  * Creates a new Activity Log.
  */
 router.post(
     "/",
+    authenticate,
+    authorizeOwner,
     validate(createActivityLogSchema),
     createActivityLog,
 );
 
 /**
- * GET /api/v1/activity-logs
+ * GET /activity-logs
  *
  * Retrieves Activity Logs with pagination.
  */
 router.get(
     "/",
+    authenticate,
+    authorizeOwner,
     validate(getActivityLogsSchema),
     getActivityLogs,
 );
 
 /**
- * GET /api/v1/activity-logs/:activityId
+ * GET /activity-logs/:activityId
  *
  * Retrieves an Activity Log by its ID.
  */
 router.get(
     "/:activityId",
+    authenticate,
+    authorizeOwner,
     validate(activityLogIdSchema),
     getActivityLog,
 );

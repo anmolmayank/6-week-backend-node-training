@@ -27,6 +27,8 @@ import type {
 import * as tenantService from "../services/tenant.service.js";
 
 import * as ApiResponse from "../utils/ApiResponse.js";
+import ApiError from "../utils/ApiError.js";
+import { httpStatus } from "../constants/httpStatus.js";
 import catchAsync from "../utils/catchAsync.js";
 import type {
     UpdateTenantData,
@@ -284,3 +286,32 @@ export const deleteAgreement = catchAsync(
         );
     },
 );
+
+/** GET /api/v1/tenants/me — tenant can only retrieve the linked record. */
+export const getMyTenant = catchAsync(async (req: Request, res: Response) => {
+    const tenantId = req.user?.tenantId?.toString();
+    if (!tenantId) {
+        throw new ApiError(httpStatus.FORBIDDEN, "This account is not linked to a tenant record.");
+    }
+
+    const tenant = await tenantService.getTenantProfileForUser(tenantId);
+    return ApiResponse.ok(res, tenant, "Tenant profile fetched successfully.");
+});
+
+/** GET /api/v1/tenants/me/agreement — download only the authenticated tenant's agreement. */
+export const downloadMyAgreement = catchAsync(async (req: Request, res: Response) => {
+    const tenantId = req.user?.tenantId?.toString();
+    if (!tenantId) {
+        throw new ApiError(httpStatus.FORBIDDEN, "This account is not linked to a tenant record.");
+    }
+
+    const agreement = await tenantService.downloadAgreement(tenantId);
+    return res.download(agreement.path, agreement.originalName);
+});
+
+/** DELETE /api/v1/tenants/:tenantId — owner-only tenant deletion. */
+export const deleteTenant = catchAsync(async (req: Request, res: Response) => {
+    const { tenantId } = req.validated.params as { tenantId: string };
+    await tenantService.deleteTenant(tenantId);
+    return ApiResponse.ok(res, null, "Tenant deleted successfully.");
+});

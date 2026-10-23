@@ -39,6 +39,7 @@ import tenantRoutes from "./routes/tenant.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import activityLogRoutes from "./routes/activity-log.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
+import maintenanceTicketRoutes from "./routes/maintenance-ticket.routes.js";
 
 const app: Express = express();
 /**
@@ -125,6 +126,7 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/tenants", tenantRoutes);
 app.use("/api/v1/activity-logs", activityLogRoutes);
 app.use("/api/v1/chat", chatRoutes);
+app.use("/api/v1/maintenance-tickets", maintenanceTicketRoutes);
 
 /**
  * ============================================================================

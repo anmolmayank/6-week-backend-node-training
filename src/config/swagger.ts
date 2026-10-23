@@ -39,8 +39,8 @@ const options: Options = {
       {
         // Resolve API requests against the current browser origin.
         // This avoids localhost vs. 127.0.0.1 hostname mismatches.
-        url: "/",
-        description: "Current Node.js API server",
+        url: "/api/v1",
+        description: "Node.js versioned API base path",
       },
     ],
 
@@ -54,6 +54,10 @@ const options: Options = {
         description: "Tenant Management APIs",
       },
       {
+        name: "Users",
+        description: "User account and tenant-account association APIs",
+      },
+      {
         name: "Activity Logs",
         description: "Activity Log management APIs",
       },
@@ -61,11 +65,19 @@ const options: Options = {
         name: "Chat",
         description: "Local AI chatbot APIs",
       },
+      {
+        name: "Tenant Portal",
+        description: "Tenant-scoped self-service APIs",
+      },
+      {
+        name: "Maintenance Tickets",
+        description: "Tenant ticket creation and owner-only ticket management",
+      },
     ],
 
     components: {
       securitySchemes: {
-        bearerAuth: {
+        BearerAuth: {
           type: "http",
           scheme: "bearer",
           bearerFormat: "JWT",
@@ -91,22 +103,25 @@ const options: Options = {
 
         LoginResponse: {
           type: "object",
-
           properties: {
-            success: {
-              type: "boolean",
-              example: true,
-            },
-            message: {
-              type: "string",
-              example: "Login successful.",
-            },
+            success: { type: "boolean", example: true },
+            message: { type: "string", example: "Login successful." },
             data: {
               type: "object",
               properties: {
-                token: {
-                  type: "string",
-                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                accessToken: { type: "string", description: "JWT access token." },
+                user: {
+                  type: "object",
+                  required: ["_id", "name", "email", "role", "tenantId"],
+                  properties: {
+                    _id: { type: "string", example: "689d58b7d6ef8d8c0b7d1234" },
+                    name: { type: "string", example: "Rahul Sharma" },
+                    email: { type: "string", format: "email", example: "tenant@example.com" },
+                    role: { type: "string", enum: ["owner", "tenant"] },
+                    tenantId: { type: "string", nullable: true, example: null },
+                    createdAt: { type: "string", format: "date-time" },
+                    updatedAt: { type: "string", format: "date-time" },
+                  },
                 },
               },
             },

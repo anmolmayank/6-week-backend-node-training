@@ -1,105 +1,39 @@
 import bcrypt from "bcrypt";
-
 import ApiError from "../utils/ApiError.js";
 import { generateAccessToken } from "../utils/jwt.js";
-
 import { httpStatus } from "../constants/httpStatus.js";
-
 import * as userRepository from "../repositories/user.repository.js";
 
-/**
- * ------------------------------------------------------------------
- * Login User
- * ------------------------------------------------------------------
- *
- * Business Rules:
- * - User must exist.
- * - Password must match.
- * - Generate JWT on successful authentication.
- * - Never expose the password.
- * ------------------------------------------------------------------
- */
-export const login = async (
-    loginData: {
-        email: string;
-        password: string;
-    },
-) => {
-    /**
-     * ------------------------------------------------------------
-     * Find user by email.
-     * ------------------------------------------------------------
-     *
-     * Password is explicitly included by the repository because
-     * the User model has `select: false` for the password field.
-     */
-    const user =
-        await userRepository.findByEmailWithPassword(
-            loginData.email,
-        );
+/** Authenticate by email/password and return a UI-safe identity plus JWT. */
+export const login = async (loginData: {
+    email: string;
+    password: string;
+}) => {
+    const user = await userRepository.findByEmailWithPassword(loginData.email);
 
-    /**
-     * ------------------------------------------------------------
-     * Invalid email.
-     * ------------------------------------------------------------
-     */
     if (!user) {
-        throw new ApiError(
-            httpStatus.UNAUTHORIZED,
-            "Invalid email or password.",
-        );
+        throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid email or password.");
     }
 
-    /**
-     * ------------------------------------------------------------
-     * Verify password.
-     * ------------------------------------------------------------
-     */
-    const isPasswordValid =
-        await bcrypt.compare(
-            loginData.password,
-            user.password,
-        );
-
-    /**
-     * ------------------------------------------------------------
-     * Invalid password.
-     * ------------------------------------------------------------
-     */
+    const isPasswordValid = await bcrypt.compare(loginData.password, user.password);
     if (!isPasswordValid) {
-        throw new ApiError(
-            httpStatus.UNAUTHORIZED,
-            "Invalid email or password.",
-        );
+        throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid email or password.");
     }
 
-    /**
-     * ------------------------------------------------------------
-     * Remove password before returning the user.
-     * ------------------------------------------------------------
-     */
-    const {
-        password,
-        ...authenticatedUser
-    } = user;
+    // Do not rely on request-supplied role/tenant data. Both values come from
+    // the persisted user record and are returned for frontend route selection.
+    const safeUser = {
+        _id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        tenantId: user.tenantId ? user.tenantId.toString() : null,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+    };
 
-    /**
-     * ------------------------------------------------------------
-     * Generate JWT.
-     * ------------------------------------------------------------
-     */
-    const accessToken =
-        generateAccessToken(
-            authenticatedUser._id.toString(),
-        );
-
-    /**
-     * ------------------------------------------------------------
-     * Return authenticated user and access token.
-     * ------------------------------------------------------------
-     */
     return {
-        user: authenticatedUser,
-        accessToken,
+        user: safeUser,
+        accessToken: generateAccessToken(safeUser._id),
     };
 };

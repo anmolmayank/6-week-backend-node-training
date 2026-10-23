@@ -35,11 +35,13 @@
  *           type: string
  *           example: ollama
  *
- * /api/v1/chat:
+ * /chat:
  *   post:
  *     tags:
  *       - Chat
  *     summary: Generate a response using the local AI model
+ *     security:
+ *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -63,6 +65,7 @@ import { Router } from "express";
 
 import { chat } from "../controllers/chat.controller.js";
 import validate from "../middlewares/validate.middleware.js";
+import authenticate from "../middlewares/auth.middleware.js";
 import { chatRequestSchema } from "../validations/chat.validation.js";
 
 /** Router for chat endpoints. */
@@ -76,6 +79,7 @@ const router = Router();
  */
 router.post(
     "/",
+    authenticate,
     validate(chatRequestSchema),
     chat,
 );
